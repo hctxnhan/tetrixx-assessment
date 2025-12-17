@@ -1,6 +1,42 @@
 import "./styles.css";
-import { CounterButton } from "@repo/ui/counter-button";
-import { Link } from "@repo/ui/link";
+import { useState } from "react";
+
+function CounterButton() {
+  const [count, setCount] = useState(0);
+  return (
+    <button
+      onClick={() => setCount(count + 1)}
+      style={{
+        padding: "8px 16px",
+        fontSize: "16px",
+        backgroundColor: "#0070f3",
+        color: "white",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+        margin: "16px 0"
+      }}
+    >
+      Count: {count}
+    </button>
+  );
+}
+
+function Link({ href, children, newTab = false }: { href: string; children: React.ReactNode; newTab?: boolean }) {
+  return (
+    <a
+      href={href}
+      target={newTab ? "_blank" : undefined}
+      rel={newTab ? "noopener noreferrer" : undefined}
+      style={{
+        color: "#0070f3",
+        textDecoration: "none"
+      }}
+    >
+      {children}
+    </a>
+  );
+}
 
 function App() {
   return (
