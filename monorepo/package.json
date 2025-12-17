@@ -2,17 +2,16 @@
   "name": "kitchen-sink",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "clean": "turbo run clean",
-    "dev": "turbo run dev",
+    "build": "npm run build --if-present --workspaces",
+    "clean": "npm run clean --if-present --workspaces",
+    "dev": "npm run dev --if-present --workspaces",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "check-types": "turbo run check-types"
+    "lint": "npm run lint --if-present --workspaces",
+    "test": "npm run test --if-present --workspaces",
+    "check-types": "npm run check-types --if-present --workspaces"
   },
   "devDependencies": {
-    "prettier": "^3.6.0",
-    "turbo": "^2.6.3"
+    "prettier": "^3.6.0"
   },
   "engines": {
     "node": ">=18"

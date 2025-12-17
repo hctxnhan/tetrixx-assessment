@@ -1,20 +1,10 @@
-# Turborepo kitchen sink starter
+# Monorepo kitchen sink starter
 
-This Turborepo starter is maintained by the Turborepo core team.
-
-This example also shows how to use [Workspace Configurations](https://turborepo.com/docs/core-concepts/monorepos/configuring-workspaces).
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest -e kitchen-sink
-```
+This monorepo example includes shared configurations and multiple applications.
 
 ## What's inside?
 
-This Turborepo includes the following packages and apps:
+This monorepo includes the following packages and apps:
 
 ### Apps and Packages
 
@@ -32,7 +22,7 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Utilities
 
-This Turborepo has some additional tools already setup for you:
+This monorepo has some additional tools already setup for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
 - [ESLint](https://eslint.org/) for code linting
