@@ -1,0 +1,5 @@
+.claude/
+agent-os/
+node_modules/
+.DS_Store
+.mcp.json
