@@ -94,25 +94,30 @@ describe("StockDataGenerator", () => {
     // Wait for multiple price points
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
-        if (prices.length >= 5) {
-          // Check that prices vary (not all the same)
-          const uniquePrices = new Set(prices);
-          expect(uniquePrices.size).toBeGreaterThan(1);
+        try {
+          if (prices.length >= 5) {
+            // Check that prices vary (not all the same)
+            const uniquePrices = new Set(prices);
+            expect(uniquePrices.size).toBeGreaterThan(1);
 
-          // Check that price changes are reasonable
-          for (let i = 1; i < prices.length; i++) {
-            const change = Math.abs(prices[i] - prices[i - 1]);
-            expect(change).toBeLessThanOrEqual(0.20); // Max change of $0.20
+            // Check that price changes are reasonable
+            // The generator allows for max $5 smooth change and $50 spike
+            for (let i = 1; i < prices.length; i++) {
+              const change = Math.abs(prices[i] - prices[i - 1]);
+              expect(change).toBeLessThanOrEqual(60); 
+            }
+
+            // Check that prices stay positive
+            prices.forEach(price => {
+              expect(price).toBeGreaterThan(0);
+            });
+
+            resolve();
+          } else {
+            reject(new Error(`Expected at least 5 prices, got ${prices.length}`));
           }
-
-          // Check that prices stay positive
-          prices.forEach(price => {
-            expect(price).toBeGreaterThan(0);
-          });
-
-          resolve();
-        } else {
-          reject(new Error(`Expected at least 5 prices, got ${prices.length}`));
+        } catch (error) {
+          reject(error);
         }
       }, 1000);
     });

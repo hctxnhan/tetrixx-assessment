@@ -253,7 +253,6 @@ function App() {
         
         <ConnectionStatus
             status={status}
-            reconnectionAttempts={retryCount}
             error={error}
             lastPing={lastPacket?.timestamp}
             onReconnect={status === "disconnected" ? reconnect : undefined}

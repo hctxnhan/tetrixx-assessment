@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import { createServer } from "../server";
 import { Server } from "http";
+import { sseService } from "../sse-service";
 
 describe("SSE Endpoint Tests", () => {
   let server: Server;
@@ -18,6 +19,7 @@ describe("SSE Endpoint Tests", () => {
     if (server) {
       server.close();
     }
+    sseService.shutdown();
   });
 
   it("should establish SSE connection with proper headers", async () => {

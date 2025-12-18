@@ -1,5 +1,5 @@
-import { useEffect, useState, memo } from 'react';
-import { Wifi, WifiOff, RefreshCw, Server, Clock, Power, PowerOff } from 'lucide-react';
+import { useEffect, memo } from 'react';
+import { Wifi, WifiOff, RefreshCw, Clock, Power, PowerOff } from 'lucide-react';
 import { ConnectionStatus as ConnStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import { apiBaseUrl } from '@/config';
@@ -7,7 +7,6 @@ import { apiBaseUrl } from '@/config';
 interface ConnectionStatusProps {
   status: ConnStatus;
   connectionCount?: number;
-  reconnectionAttempts?: number;
   error?: string | null;
   lastPing?: string;
   onReconnect?: () => void;
@@ -16,22 +15,17 @@ interface ConnectionStatusProps {
 
 export const ConnectionStatus = memo<ConnectionStatusProps>(({
   status,
-  connectionCount,
-  reconnectionAttempts = 0,
   error,
   lastPing,
   onReconnect,
   onDisconnect,
 }) => {
-  const [localConnectionCount, setLocalConnectionCount] = useState<number>(0);
-
   useEffect(() => {
     const fetchConnectionCount = async () => {
       try {
         const response = await fetch(`${apiBaseUrl}/status`);
         if (response.ok) {
-          const data = await response.json();
-          setLocalConnectionCount(data.connections || 0);
+          await response.json();
         }
       } catch (err) {
         console.error('Failed to fetch connection count:', err);
@@ -113,11 +107,6 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
             <span className={`text-sm font-bold ${config.color} leading-none`}>
                 {config.label}
             </span>
-             {status === 'reconnecting' && (
-                 <span className="text-[10px] text-slate-500 font-medium mt-1">
-                    Attempt {reconnectionAttempts}/5
-                 </span>
-             )}
         </div>
       </div>
 
@@ -140,7 +129,7 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
 
       {/* Actions Section */}
       <div>
-         {status === 'disconnected' && onReconnect && (
+         {(status === 'disconnected' || status === 'error') && onReconnect && (
             <Button 
                 size="sm" 
                 onClick={onReconnect} 
@@ -161,7 +150,7 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
               Disconnect
             </Button>
           )}
-          {['connecting', 'reconnecting'].includes(status) && (
+          {['connecting', 'reconnecting', 'error'].includes(status) && (
                <Button size="sm" disabled variant="ghost" className="rounded-full h-9 px-4 bg-slate-100 text-slate-400">
                   <RefreshCw size={14} className="mr-2 animate-spin" />
                   Please wait

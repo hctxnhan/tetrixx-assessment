@@ -5,6 +5,7 @@ import cors from "cors";
 import { log } from "@repo/logger";
 import { sseService } from "./sse-service";
 import { config } from "./config";
+import { appRouter } from "./routes";
 
 export const createServer = (): Express => {
   const app = express();
@@ -22,29 +23,7 @@ export const createServer = (): Express => {
     .use(urlencoded({ extended: true }))
     .use(json())
     .use(cors(corsOptions))
-    .get("/message/:name", (req, res) => {
-      return res.json({ message: `hello ${req.params.name}` });
-    })
-    .get("/status", (_, res) => {
-      return res.json({
-        ok: true,
-        sseActive: sseService.isActive(),
-        connectionCount: sseService.getConnectionCount(),
-        environment: process.env.NODE_ENV || "development"
-      });
-    })
-    .get("/stocks/subscribe", (req, res) => {
-      log("SSE connection request received");
-
-      // Check connection limit
-      if (sseService.getConnectionCount() >= productionConfig.sse.maxConnections) {
-        log("Maximum connection limit reached");
-        res.writeHead(503, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({ error: "Server overloaded - too many connections" }));
-      }
-
-      sseService.handleConnection(req, res);
-    });
+    .use(appRouter);
 
   // Initialize SSE service when server is created
   sseService.initialize();

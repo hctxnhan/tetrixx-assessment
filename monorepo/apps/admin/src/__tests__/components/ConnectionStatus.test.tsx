@@ -70,4 +70,20 @@ describe('ConnectionStatus', () => {
     // Should not throw error and still render connected state
     expect(screen.getByText('System Online')).toBeInTheDocument();
   });
+
+  it('should display error status with reconnect button', () => {
+    const onReconnect = vi.fn();
+    render(<ConnectionStatus status="error" error="Test Error" onReconnect={onReconnect} />);
+
+    expect(screen.getByText('Error')).toBeInTheDocument();
+    
+    // Check if error message is displayed
+    expect(screen.getByText('Test Error')).toBeInTheDocument();
+
+    const reconnectButton = screen.getByRole('button', { name: /Reconnect/i });
+    expect(reconnectButton).toBeInTheDocument();
+
+    fireEvent.click(reconnectButton);
+    expect(onReconnect).toHaveBeenCalled();
+  });
 });

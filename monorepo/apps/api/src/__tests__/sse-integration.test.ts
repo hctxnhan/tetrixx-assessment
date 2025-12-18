@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
 import { createServer } from "../server";
 import { sseService } from "../sse-service";
+import { Server } from "http";
 
 // Polyfill EventSource for Node.js testing environment
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const EventSource = require("eventsource");
+const EventSourceLib = require("eventsource");
 
 interface MockEventSource {
   new (url: string): {
@@ -14,10 +15,11 @@ interface MockEventSource {
   };
 }
 
-const EventSourceClass = EventSource as unknown as MockEventSource["prototype"]["constructor"];
+const EventSource = (EventSourceLib.EventSource || EventSourceLib) as unknown as MockEventSource["prototype"]["constructor"];
 
 describe("SSE Integration Tests", () => {
   let serverUrl: string;
+  let server: Server;
 
   beforeAll(async () => {
     // Create a test server
@@ -25,8 +27,8 @@ describe("SSE Integration Tests", () => {
 
     // Listen on an available port
     await new Promise<void>((resolve) => {
-      const listener = app.listen(0, () => {
-        const port = (listener.address() as { port: number })?.port;
+      server = app.listen(0, () => {
+        const port = (server.address() as { port: number })?.port;
         serverUrl = `http://localhost:${port}`;
         resolve();
       });
@@ -36,6 +38,10 @@ describe("SSE Integration Tests", () => {
   afterAll(async () => {
     // Clean up SSE service
     sseService.shutdown();
+    // Close the server
+    if (server) {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
   });
 
   describe("Multiple concurrent connections", () => {
@@ -46,7 +52,7 @@ describe("SSE Integration Tests", () => {
 
       // Create multiple connections
       for (let i = 0; i < connectionCount; i++) {
-        const eventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+        const eventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
         connections.push(eventSource);
         receivedData.set(i, []);
 
@@ -93,7 +99,7 @@ describe("SSE Integration Tests", () => {
     }, 10000);
 
     it("should handle connection cleanup properly", async () => {
-      const eventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const eventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
 
       let messageReceived = false;
       eventSource.onmessage = () => {
@@ -111,7 +117,7 @@ describe("SSE Integration Tests", () => {
       await new Promise(resolve => setTimeout(resolve, 50));
 
       // Create a new connection to verify cleanup worked
-      const newEventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const newEventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
       let newMessageReceived = false;
 
       newEventSource.onmessage = () => {
@@ -127,7 +133,7 @@ describe("SSE Integration Tests", () => {
 
   describe("SSE data stream consumption", () => {
     it("should receive properly formatted SSE messages", async () => {
-      const eventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const eventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
       const messages: string[] = [];
 
       eventSource.onmessage = (event: { data: string }) => {
@@ -162,7 +168,7 @@ describe("SSE Integration Tests", () => {
     });
 
     it("should maintain approximately 50ms emission interval", async () => {
-      const eventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const eventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
       const timestamps: number[] = [];
 
       eventSource.onmessage = (event: { data: string }) => {
@@ -198,8 +204,8 @@ describe("SSE Integration Tests", () => {
 
   describe("Error scenarios", () => {
     it("should handle client disconnect gracefully", async () => {
-      const eventSource1 = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
-      const eventSource2 = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const eventSource1 = new EventSource(`${serverUrl}/stocks/subscribe`);
+      const eventSource2 = new EventSource(`${serverUrl}/stocks/subscribe`);
 
       let messages1 = 0;
       let messages2 = 0;
@@ -238,7 +244,7 @@ describe("SSE Integration Tests", () => {
 
     it("should handle server error recovery", async () => {
       // Create a connection
-      const eventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const eventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
       let messageCount = 0;
 
       eventSource.onmessage = () => {
@@ -260,7 +266,7 @@ describe("SSE Integration Tests", () => {
       await new Promise(resolve => setTimeout(resolve, 50));
 
       // Create new connection
-      const newEventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+      const newEventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
       let newMessageCount = 0;
 
       newEventSource.onmessage = () => {
@@ -284,7 +290,7 @@ describe("SSE Integration Tests", () => {
 
       // Create multiple connections
       for (let i = 0; i < connectionCount; i++) {
-        const eventSource = new EventSourceClass(`${serverUrl}/stocks/subscribe`);
+        const eventSource = new EventSource(`${serverUrl}/stocks/subscribe`);
         connections.push(eventSource);
 
         // Each connection should receive messages
