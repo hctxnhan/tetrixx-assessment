@@ -86,4 +86,12 @@ describe('ConnectionStatus', () => {
     fireEvent.click(reconnectButton);
     expect(onReconnect).toHaveBeenCalled();
   });
+
+  it('should display please wait button when status is error and onReconnect is missing', () => {
+    render(<ConnectionStatus status="error" error="Test Error" />);
+
+    expect(screen.getByText('Error')).toBeInTheDocument();
+    expect(screen.getByText('Please wait')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Reconnect/i })).not.toBeInTheDocument();
+  });
 });

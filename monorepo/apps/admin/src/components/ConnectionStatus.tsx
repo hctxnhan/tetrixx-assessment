@@ -93,10 +93,10 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
 
   const config = getStatusConfig();
   return (
-    <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-5 py-3 rounded-full border shadow-2xl backdrop-blur-md transition-all duration-300 ${config.bgColor} ${config.borderColor}`}>
+    <div className={`fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-2 sm:py-3 rounded-full border shadow-2xl backdrop-blur-md transition-all duration-300 ${config.bgColor} ${config.borderColor} max-w-[calc(100vw-2rem)] sm:max-w-none`}>
       
       {/* Status Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="relative flex items-center justify-center">
             {status === 'connected' && (
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -104,17 +104,17 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
             <span className={`relative inline-flex rounded-full h-3 w-3 ${config.dotColor}`}></span>
         </div>
         <div className="flex flex-col">
-            <span className={`text-sm font-bold ${config.color} leading-none`}>
+            <span className={`text-sm font-bold ${config.color} leading-none whitespace-nowrap`}>
                 {config.label}
             </span>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="h-8 w-px bg-slate-200 mx-1"></div>
+      <div className="hidden sm:block h-8 w-px bg-slate-200 mx-1"></div>
 
       {/* Last Update Section */}
-      <div className="flex items-center gap-2 text-slate-600 min-w-[140px]">
+      <div className="hidden sm:flex items-center gap-2 text-slate-600 min-w-[140px]">
           <Clock size={16} className="text-slate-400" />
           <div className="flex flex-col">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Last Update</span>
@@ -128,15 +128,16 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
        <div className="h-8 w-px bg-slate-200 mx-1"></div>
 
       {/* Actions Section */}
-      <div>
+      <div className="shrink-0">
          {(status === 'disconnected' || status === 'error') && onReconnect && (
             <Button 
                 size="sm" 
                 onClick={onReconnect} 
-                className="rounded-full h-9 px-4 bg-slate-900 hover:bg-slate-800 text-white shadow-md hover:shadow-lg transition-all"
+                className="rounded-full h-9 px-3 sm:px-4 bg-slate-900 hover:bg-slate-800 text-white shadow-md hover:shadow-lg transition-all"
             >
               <Power size={14} className="mr-2" />
-              Reconnect
+              <span className="hidden sm:inline">Reconnect</span>
+              <span className="inline sm:hidden">Retry</span>
             </Button>
           )}
            {status === 'connected' && onDisconnect && (
@@ -144,23 +145,25 @@ export const ConnectionStatus = memo<ConnectionStatusProps>(({
                 size="sm" 
                 variant="ghost" 
                 onClick={onDisconnect} 
-                className="rounded-full h-9 px-4 text-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                className="rounded-full h-9 px-3 sm:px-4 text-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
             >
               <PowerOff size={14} className="mr-2" />
-              Disconnect
+              <span className="hidden sm:inline">Disconnect</span>
+              <span className="inline sm:hidden">Stop</span>
             </Button>
           )}
-          {['connecting', 'reconnecting', 'error'].includes(status) && (
-               <Button size="sm" disabled variant="ghost" className="rounded-full h-9 px-4 bg-slate-100 text-slate-400">
+          {['connecting', 'reconnecting', 'error'].includes(status) && !onReconnect && (
+               <Button size="sm" disabled variant="ghost" className="rounded-full h-9 px-3 sm:px-4 bg-slate-100 text-slate-400">
                   <RefreshCw size={14} className="mr-2 animate-spin" />
-                  Please wait
+                  <span className="hidden sm:inline">Please wait</span>
+                  <span className="inline sm:hidden">Wait...</span>
                </Button>
           )}
       </div>
 
       {error && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-sm">
-             <div className="bg-rose-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[90vw] sm:max-w-sm text-center">
+             <div className="bg-rose-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg truncate max-w-full">
                 {error}
              </div>
              <div className="w-2 h-2 bg-rose-600 rotate-45 absolute left-1/2 -translate-x-1/2 -bottom-1"></div>

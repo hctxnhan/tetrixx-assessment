@@ -5,6 +5,7 @@ import { RealTimeChart } from "@/components/RealTimeChart";
 import { SystemLogs } from "@/components/SystemLogs";
 import { ThresholdInput } from "@/components/ThresholdInput";
 import { useStockMonitor } from "@/hooks/useStockMonitor";
+import { maxReconnectAttempts } from "@/config";
 import { useState, useMemo } from "react";
 import {
   LayoutDashboard,
@@ -255,7 +256,7 @@ function App() {
             status={status}
             error={error}
             lastPing={lastPacket?.timestamp}
-            onReconnect={status === "disconnected" ? reconnect : undefined}
+            onReconnect={(status === "disconnected" || (status === "error" && retryCount >= maxReconnectAttempts)) ? reconnect : undefined}
             onDisconnect={status === "connected" ? disconnect : undefined}
         />
       </div>
