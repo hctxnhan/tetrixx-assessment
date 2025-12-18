@@ -12,7 +12,10 @@
     "test": "jest --detectOpenHandles"
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "moduleNameMapper": {
+      "^@repo/(.*)$": "<rootDir>/../../packages/$1/src"
+    }
   },
   "dependencies": {
     "@repo/logger": "*",

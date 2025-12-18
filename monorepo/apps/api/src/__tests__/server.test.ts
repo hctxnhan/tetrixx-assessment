@@ -1,5 +1,4 @@
 import supertest from "supertest";
-import { describe, it, expect, afterAll } from "@jest/globals";
 import { createServer } from "../server";
 import { sseService } from "../sse-service";
 
