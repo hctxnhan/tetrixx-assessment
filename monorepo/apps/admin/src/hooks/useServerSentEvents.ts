@@ -1,5 +1,6 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react';
 import { ConnectionStatus, StockData } from '@/types';
+import { useEffectEvent } from './useEffectEvent';
 import {
   maxReconnectAttempts,
   initialReconnectDelay,
@@ -63,11 +64,8 @@ export const useServerSentEvents = (
   const eventSourceRef = useRef<EventSource | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Stability check: memoize the callback to prevent effect re-runs
-  const handleData = useRef(onDataReceived);
-  useEffect(() => {
-    handleData.current = onDataReceived;
-  }, [onDataReceived]);
+  // Use the event event pattern to handle the callback
+  const onDataReceivedEvent = useEffectEvent(onDataReceived);
 
   const cleanup = useCallback(() => {
     if (eventSourceRef.current) {
@@ -102,9 +100,9 @@ export const useServerSentEvents = (
       es.onmessage = (event) => {
         try {
           const parsed: StockData = JSON.parse(event.data);
-          // Directly invoke the callback. 
+          // Directly invoke the callback.
           // This is the "Fast Lane" that bypasses React rendering.
-          handleData.current?.(parsed);
+          onDataReceivedEvent(parsed);
         } catch (err) {
           console.error('Failed to parse SSE message:', err);
         }
